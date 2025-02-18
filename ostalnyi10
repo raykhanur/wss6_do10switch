@@ -1,0 +1,131 @@
+import java.time.*;
+import java.util.*;
+
+public class DiscountSystem {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Выберите задачу (1-10): ");
+        int choice = scanner.nextInt();
+
+        switch (choice) {
+            case 1:
+                // 1. Комбинированная система скидок
+                System.out.println("Введите сумму покупки:");
+                double amount = scanner.nextDouble();
+                System.out.println("Вы зарегистрированы? (true/false)");
+                boolean isRegistered = scanner.nextBoolean();
+
+                double discount = (amount < 3000) ? 0.05 :
+                                  (amount < 10000) ? 0.10 : 0.15;
+                if (isRegistered) discount += 0.03;
+
+                double finalAmount = amount * (1 - discount);
+                double cashback = (amount > 20000) ? finalAmount * 0.05 : 0;
+
+                System.out.println("Итоговая сумма: " + finalAmount);
+                System.out.println("Кэшбэк: " + cashback);
+                break;
+
+            case 2:
+                // 2. Гибкая система скидок с учётом частоты покупок
+                System.out.println("Введите сумму покупки:");
+                double sum = scanner.nextDouble();
+                System.out.println("Сколько у вас было покупок?");
+                int purchases = scanner.nextInt();
+                System.out.println("Введите дату последней покупки (YYYY-MM-DD):");
+                LocalDate lastPurchase = LocalDate.parse(scanner.next());
+
+                double discount2 = (purchases < 5) ? 0.05 :
+                                   (purchases <= 10) ? 0.10 : 0.15;
+                if (lastPurchase.isBefore(LocalDate.now().minusMonths(6))) discount2 = 0;
+
+                System.out.println("Итоговая сумма: " + (sum * (1 - discount2)));
+                break;
+
+            case 3:
+                // 3. Динамическое ценообразование на топливо
+                System.out.println("Введите количество литров:");
+                double liters = scanner.nextDouble();
+                System.out.println("Вы используете программу лояльности? (true/false)");
+                boolean loyalty = scanner.nextBoolean();
+
+                double pricePerLiter = 200;
+                LocalTime now = LocalTime.now();
+                if ((now.getHour() >= 6 && now.getHour() < 10) || (now.getHour() >= 17 && now.getHour() < 20))
+                    pricePerLiter *= 1.10;
+
+                double discount3 = (liters > 50) ? 0.07 : (liters > 30) ? 0.03 : 0;
+                if (loyalty) discount3 += 0.05;
+
+                System.out.println("Итоговая сумма: " + (liters * pricePerLiter * (1 - discount3)));
+                break;
+
+            case 4:
+                // 4. Скидка в зависимости от дня недели и метода оплаты
+                System.out.println("Оплата картой? (true/false)");
+                boolean cardPayment = scanner.nextBoolean();
+                LocalDate today = LocalDate.now();
+                DayOfWeek day = today.getDayOfWeek();
+
+                double discount4 = (day == DayOfWeek.MONDAY) ? 0.05 :
+                                   (day == DayOfWeek.FRIDAY) ? 0.10 :
+                                   (day == DayOfWeek.SUNDAY && cardPayment) ? 0.12 : 0;
+                if (!cardPayment) discount4 -= 0.03;
+                System.out.println("Итоговая сумма с учетом скидки: " + (10000 * (1 - discount4))); // пример суммы
+                break;
+
+            case 5:
+                // 5. Сезонные скидки в магазине техники
+                System.out.println("Введите тип товара (кондиционер, холодильник, обогреватель, ноутбук):");
+                String item = scanner.next();
+                System.out.println("Вы берете рассрочку? (true/false)");
+                boolean installment = scanner.nextBoolean();
+
+                Month month = LocalDate.now().getMonth();
+                double discount5 = switch (item) {
+                    case "кондиционер" -> (month == Month.JUNE || month == Month.JULY || month == Month.AUGUST) ? 0.15 : 0;
+                    case "холодильник" -> (month == Month.JUNE || month == Month.JULY || month == Month.AUGUST) ? 0.10 : 0;
+                    case "обогреватель" -> (month == Month.DECEMBER || month == Month.JANUARY || month == Month.FEBRUARY) ? 0.20 : 0;
+                    case "ноутбук" -> (month == Month.DECEMBER || month == Month.JANUARY || month == Month.FEBRUARY) ? 0.05 : 0;
+                    default -> 0;
+                };
+                if (installment) discount5 /= 2;
+                System.out.println("Итоговая скидка: " + discount5 * 100 + "%");
+                break;
+
+            case 6:
+                // 6. Прогрессивная скидка за частую покупку
+                System.out.println("Введите даты покупок за последние 3 месяца (YYYY-MM-DD, через пробел):");
+                scanner.nextLine();
+                String[] dates = scanner.nextLine().split(" ");
+                List<LocalDate> purchasesDates = new ArrayList<>();
+                for (String date : dates) purchasesDates.add(LocalDate.parse(date));
+
+                long weeks = purchasesDates.stream().filter(d -> d.isAfter(LocalDate.now().minusMonths(3))).count();
+                double discount6 = (weeks >= 12) ? 0.20 : 0;
+                System.out.println("Итоговая скидка: " + discount6 * 100 + "%");
+                break;
+
+            case 7:
+                // 7. Гибкая скидка на проездной билет
+                System.out.println("Введите возраст:");
+                int age = scanner.nextInt();
+                System.out.println("Студент? (true/false)");
+                boolean student = scanner.nextBoolean();
+                System.out.println("Оплата через приложение? (true/false)");
+                boolean appPayment = scanner.nextBoolean();
+                System.out.println("Оформляете на 3 месяца? (true/false)");
+                boolean threeMonths = scanner.nextBoolean();
+
+                double discount7 = student ? 0.50 : (age >= 65 ? 0.30 : 0);
+                if (threeMonths) discount7 += 0.10;
+                if (appPayment) discount7 += 0.05;
+                System.out.println("Цена проездного: " + (8000 * (1 - discount7)));
+                break;
+
+            default:
+                System.out.println("Некорректный ввод.");
+        }
+        scanner.close();
+    }
+}
